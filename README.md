@@ -25,6 +25,7 @@ A modern, responsive e-commerce frontend built with React and Vite, consuming RE
 
 
 ## 📁 Project Structure
+<pre>
 frontend/
 ├── eslint.config.js
 ├── index.html
@@ -43,3 +44,4 @@ frontend/
     ├── index.css
     ├── main.jsx
     └── assets/
+</pre>
