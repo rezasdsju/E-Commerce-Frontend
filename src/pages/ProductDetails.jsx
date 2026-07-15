@@ -27,6 +27,7 @@
 
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {useCart} from "../context/CartContext";
 
 function ProductDetails() {
     const {id} = useParams();
@@ -34,6 +35,7 @@ function ProductDetails() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const {addToCart} = useCart();
     
     useEffect(()=> {
         fetch(`${BASE_URL}/api/products/${id}/`) 
@@ -79,7 +81,7 @@ function ProductDetails() {
                     
                      <p className='text-gray-500 mt-2'>{product.description}</p>
                      <p className="text-gray-600 font-medium">${Number(product.price).toFixed(2)}</p>
-                     <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                     <button onClick={()=>addToCart(product)} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
                         Add to Cart
                      </button>
                    </div>
