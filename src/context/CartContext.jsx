@@ -1,26 +1,30 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { authFetch, getAccessToken } from "../utils/auth"; 
+
 const CartContext = createContext()
 export const cartProvider = ({children})=> {
     const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
     const [cartItems,setCartItems] = useState([]);
     const [total, setTotal] = useState(0);
 
-
     //Fetch Cart from BE
     const fetchCart = async () => {
         try {
-            const res = await fetch(`${BASEURL}/api/cart`);
-            if (!res.ok) {
-                throw new Error('Failed to Fetch Cart');
+            // FIX: Check if user is logged in before fetching cart
+            const token = getAccessToken();
+            if (!token) {
+                setCartItems([]);
+                setTotal(0);
+                return;
             }
+            const res = await authFetch(`${BASEURL}/api/cart`);
             const data = await res.json();
             setCartItems(data.items || []);
-            setTotal(Number(data.total) || 0); // <-- ONLY THIS LINE CHANGED
+            setTotal(Number(data.total) || 0);
         } catch (error) {
-            console.error('Error fecthing Cart:', error);
+            console.error('Error fetching Cart:', error);
         }
     }
-
 
     useEffect(()=>{
         fetchCart();
@@ -38,7 +42,7 @@ export const cartProvider = ({children})=> {
         }
 
         try {
-            const res = await fetch(`${BASEURL}/api/cart/add/`, {
+            const res = await authFetch(`${BASEURL}/api/cart/add/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -58,7 +62,7 @@ export const cartProvider = ({children})=> {
 
     const removeFromCart = async (itemId) => {
         try {
-            const res = await fetch(`${BASEURL}/api/cart/remove/`, {
+            const res = await authFetch(`${BASEURL}/api/cart/remove/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -72,7 +76,7 @@ export const cartProvider = ({children})=> {
 
             await fetchCart();
         } catch (error) {
-            console.error("Error Moving From Cart:", error);
+            console.error("Error Removing From Cart:", error);
         }
     }
 
@@ -82,7 +86,7 @@ export const cartProvider = ({children})=> {
             return;
         }
         try {
-            const res = await fetch(`${BASEURL}/api/cart/update/`, {
+            const res = await authFetch(`${BASEURL}/api/cart/update/`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -99,7 +103,6 @@ export const cartProvider = ({children})=> {
             console.error('Error Updating Quantity: ', error);
         }
     }
-
 
     const clearCart = () => {
         setCartItems([]);

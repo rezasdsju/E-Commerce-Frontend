@@ -1,10 +1,10 @@
 import {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authFetch } from '../utils/auth';
 import { useCart } from '../context/CartContext';
 
 function CheckoutPage() {
     const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
-    // const {cartItems, clearCart} =useCart();
     const navigate = useNavigate();
     const {clearCart} = useCart();
 
@@ -18,8 +18,6 @@ function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [messege, setMessege] = useState(null);
 
-
-
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -27,30 +25,28 @@ function CheckoutPage() {
         });
     }
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessege("");
         try {
-            const res = await fetch(`${BASEURL}/api/orders/create/`, {
+            const res = await authFetch(`${BASEURL}/api/orders/create/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(form)
-
             });
             const data = await res.json();
             if (res.ok) {
                 setMessege("Order Placed Successfully");
-                fetch(`${BASEURL}/api/cart/`)
+                // FIX: Removed the extra fetch call
                 clearCart();
                 setTimeout(()=>{
                     navigate("/");
                 }, 2000);
             } else {
-                setMessege(data.erro || "Failed to place order. Please try again");
+                setMessege(data.error || "Failed to place order. Please try again"); // FIX: was data.erro
             }
         } catch (error) {
             setMessege('An error occured. Please try again');
@@ -65,60 +61,55 @@ function CheckoutPage() {
                 <form onSubmit={handleSubmit} className='space-y'>
                     <input 
                         type="text"
-                        name = "name"
+                        name="name"
                         placeholder='Full Name'
                         value={form.name}
                         onChange={(e)=>setForm({...form, name: e.target.value})} 
                         required
                         className='w-full border rounded-lg p-2' />
 
-                        <textarea 
-                            name="address" 
-                            placeholder="Address"
-                            value={form.address}
-                            onChange={handleChange}
-                            required
-                            className='w-full border rounded-lg p-2'>
-                        </textarea>
-                        <input 
-                            type="tel"
-                            name = 'phone'
-                            placeholder='phone number' 
-                            value={form.phone}
-                            onChange={handleChange}
-                            required
-                            className='w-full border rounded-lg p-2'
-                        />
+                    <textarea 
+                        name="address" 
+                        placeholder="Address"
+                        value={form.address}
+                        onChange={handleChange}
+                        required
+                        className='w-full border rounded-lg p-2'>
+                    </textarea>
+                    <input 
+                        type="tel"
+                        name='phone'
+                        placeholder='phone number' 
+                        value={form.phone}
+                        onChange={handleChange}
+                        required
+                        className='w-full border rounded-lg p-2'
+                    />
 
-                        <select name="payment_method" 
-                            value={form.payment_method}
-                            onChange={handleChange}
-                            className='w-full border rounded-lg p-2'        
-                        >
+                    <select name="payment_method" 
+                        value={form.payment_method}
+                        onChange={handleChange}
+                        className='w-full border rounded-lg p-2'        
+                    >
                         <option value="COD">Cash on Delivery</option>
-                        {/* <option value="CreditCard">Credit Card</option>
-                        <option value="PayPal">PayPal</option> */}
                         <option value="CreditCard">Online Delivery</option>
-                        </select>
+                    </select>
 
-                        <button
-                            type = "submit"
-                            disabled ={loading}
-                            className = "w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-600 transition duration">
-                                {loading?"Processing...":"Place Order"}
-                        </button>
-                        {
-                            messege && (
-                                <p className={`text-center text-green-700 font-semibold mt-4`}>{messege}</p>
-                            )
-                        }
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-600 transition duration">
+                        {loading?"Processing...":"Place Order"}
+                    </button>
+                    {
+                        messege && (
+                            <p className={`text-center text-green-700 font-semibold mt-4`}>{messege}</p>
+                        )
+                    }
                 </form>
             </div>
         </div>
     )
 }
-
-
-
 
 export default CheckoutPage;

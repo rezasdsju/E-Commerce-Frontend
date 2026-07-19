@@ -1,30 +1,3 @@
-// import {Link} from 'react-router-dom';
-
-
-// function ProductDetails({product}) {
-//     const BASE_URL = import.meta.env.VITE_DJANGO_BASE_URL;
-
-//     return (
-//         <Link to={`/product/${product.id}`} className='block bg-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform p-4 cursor-pointer'>
-//             <img 
-//                 src={`${BASE_URL}${product.image}`} 
-//                 alt={product.name}
-//             />
-//             <h2 className="text-lg font-semibold mb-2 text-gray-800 truncate">{product.name}</h2>
-//             <p className="text-gray-600 font-medium">${Number(product.price).toFixed(2)}</p>
-//             <p className='text-gray-500 mt-2'>{product.description}</p>
-//         </Link>
-//     )
-// }
-
-// export default ProductDetails;
-
-
-
-
-
-
-
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {useCart} from "../context/CartContext";
@@ -67,6 +40,14 @@ function ProductDetails() {
         return <div>No Product Found</div>
     }
 
+    const handleAddToCart = () => {
+        if (!localStorage.getItem('accessToken')){
+            window.location.href='/login';
+            return;
+        }
+        addToCart(product.id);
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center items-center py-10">
             <div className="bg-white rounded-xl shadow-md p-6 max-w-3xl w-full">
@@ -81,12 +62,12 @@ function ProductDetails() {
                     
                      <p className='text-gray-500 mt-2'>{product.description}</p>
                      <p className="text-gray-600 font-medium">${Number(product.price).toFixed(2)}</p>
-                     <button onClick={()=>addToCart(product.id)} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                     <button onClick={handleAddToCart} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        
                         Add to Cart
                      </button>
                    </div>
                 </div>
-
             </div>
         </div>
     )
